@@ -6,10 +6,16 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +38,11 @@ import com.baidu.mapapi.map.MarkerOptions.MarkerAnimateType;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.model.LatLngBounds;
+import com.baidu.mapapi.search.core.PoiInfo;
+import com.baidu.mapapi.search.sug.OnGetSuggestionResultListener;
+import com.baidu.mapapi.search.sug.SuggestionResult;
+import com.baidu.mapapi.search.sug.SuggestionSearch;
+import com.baidu.mapapi.search.sug.SuggestionSearchOption;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -40,6 +51,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -63,6 +75,7 @@ public class OverlayDemo extends FragmentActivity {
     private Marker mMarkerD;
     private InfoWindow mInfoWindow;
     private TextView tvPOI;
+    private PoiSuggestController suggestController;
 
     // 初始化全局 bitmap 信息，不用时及时 recycle
     BitmapDescriptor bdA = BitmapDescriptorFactory
@@ -82,13 +95,12 @@ public class OverlayDemo extends FragmentActivity {
         setContentView(R.layout.activity_overlay);
         mMapView = findViewById(R.id.bmapView);
         tvPOI = findViewById(R.id.tv_poi);
-
+        suggestController = new PoiSuggestController(this, "杭州");
         mBaiduMap = mMapView.getMap();
         MapStatusUpdate msu = MapStatusUpdateFactory.zoomTo(14.0f);
         mBaiduMap.setMapStatus(msu);
         initLocation();
         initOverlay();
-
         mBaiduMap.setOnMarkerClickListener(new OnMarkerClickListener() {
             public boolean onMarkerClick(final Marker marker) {
                 Button button = new Button(getApplicationContext());
@@ -140,11 +152,10 @@ public class OverlayDemo extends FragmentActivity {
             }
         });
 
-        tvPOI.setOnClickListener(new OnClickListener() {
+        suggestController.setItemClickCallBack(new AddressListDialogFragment.ItemClick() {
             @Override
-            public void onClick(View v) {
-                AddressListDialogFragment fragment = AddressListDialogFragment.newInstance();
-                fragment.show(getSupportFragmentManager(), "POI");
+            public void itemResult(PoiInfo data) {
+                Toast.makeText(OverlayDemo.this, data.name, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -285,6 +296,7 @@ public class OverlayDemo extends FragmentActivity {
     protected void onDestroy() {
         // MapView的生命周期与Activity同步，当activity销毁时需调用MapView.destroy()
         mMapView.onDestroy();
+        suggestController.destpry();
         super.onDestroy();
         // 回收 bitmap 资源
         bdA.recycle();

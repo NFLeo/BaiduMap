@@ -21,5 +21,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, OverlayDemo.class));
             }
         });
+
+        findViewById(R.id.view_poi).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, PoiSearchDemo.class));
+            }
+        });
     }
 }

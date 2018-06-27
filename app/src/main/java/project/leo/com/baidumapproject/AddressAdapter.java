@@ -8,18 +8,25 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.baidu.mapapi.search.core.PoiInfo;
+
 import java.util.List;
 
 public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHolder> {
 
     private Context mContext;
-    private List<String> datas;
+    private List<PoiInfo> datas;
 
-    public AddressAdapter(Context mContext) {
+    public AddressAdapter(Context mContext, List<PoiInfo> list) {
         this.mContext = mContext;
+        this.datas = list;
     }
 
-    public void setDatas(List<String> datas) {
+    public void setDatas(List<PoiInfo> datas) {
+        if (datas == null) {
+            return;
+        }
+
         this.datas = datas;
         notifyDataSetChanged();
     }
@@ -33,8 +40,18 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        String musicTypeBean = datas.get(position);
-        holder.mTvName.setText("更多");
+        final PoiInfo bean = datas.get(position);
+        holder.mTvName.setText(bean.name);
+        holder.mTvDetail.setText(bean.address);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (listener != null) {
+                    listener.itemListener(position, bean);
+                }
+            }
+        });
     }
 
     @Override
@@ -42,14 +59,26 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHold
         return datas.size();
     }
 
+    private ItemClick listener;
+
+    public void setItemListener(ItemClick listener) {
+        this.listener = listener;
+    }
+
+    interface ItemClick {
+        void itemListener(int position, PoiInfo data);
+    }
+
     class ViewHolder extends RecyclerView.ViewHolder {
         private ImageView mIvIcon;
         private TextView mTvName;
+        private TextView mTvDetail;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mIvIcon = itemView.findViewById(R.id.iv_icon);
             mTvName = itemView.findViewById(R.id.tv_name);
+            mTvDetail = itemView.findViewById(R.id.tv_detail);
         }
     }
 }

@@ -43,6 +43,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".OverlayDemo" />
+        <activity android:name=".PoiSearchDemo" />
 
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"

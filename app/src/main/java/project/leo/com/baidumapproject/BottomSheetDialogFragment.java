@@ -66,15 +66,11 @@ public abstract class BottomSheetDialogFragment extends AppCompatDialogFragment 
             @Override
             public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-                    return backAction();
+                    return true;
                 }
                 return false;
             }
         });
-    }
-
-    protected boolean backAction() {
-        return false;
     }
 
     /**
